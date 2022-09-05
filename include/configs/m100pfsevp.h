@@ -20,8 +20,9 @@
 
 #include <config_distro_bootcmd.h>
 
-#undef CONFIG_BOOTCOMMAND
+#ifndef CONFIG_BOOTCOMMAND
 #define CONFIG_BOOTCOMMAND "run mmc_mmc"
+#endif
 
 #define CFG_EXTRA_ENV_SETTINGS	       \
 	"addcons=setenv bootargs ${bootargs} " \
