@@ -31,10 +31,16 @@
 #define BOOT_TARGET_DEVICE_UBIFS(func)
 #endif
 
+#if defined(CONFIG_MPFS_PRIORITISE_QSPI_BOOT)
 #define BOOT_TARGET_DEVICES(func) \
 	BOOT_TARGET_DEVICE_UBIFS(func)	\
 	BOOT_TARGET_DEVICES_MMC(func)\
 	BOOT_TARGET_DEVICES_DHCP(func)
+#else
+#define BOOT_TARGET_DEVICES(func) \
+	BOOT_TARGET_DEVICES_MMC(func)\
+	BOOT_TARGET_DEVICES_DHCP(func)
+#endif
 
 #define BOOTENV_DESIGN_OVERLAYS \
 	"design_overlays=" \
