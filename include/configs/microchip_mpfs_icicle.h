@@ -56,16 +56,7 @@
 		"done; " \
 	"fi;\0 " \
 
-#if defined(CONFIG_FIT_SIGNATURE)
-#define CFG_EXTRA_ENV_SETTINGS \
-	"bootm_size=0x10000000\0" \
-	"kernel_addr_r=0x80200000\0" \
-	"fdt_addr_r=0x8a000000\0" \
-	"fdtoverlay_addr_r=0x8a080000\0" \
-	"ramdisk_addr_r=0x8aa00000\0" \
-	"scriptaddr=0x8e000000\0" \
-	BOOTENV_DESIGN_OVERLAYS
-#else
+#if !defined(CONFIG_FIT_SIGNATURE)
 #include <config_distro_bootcmd.h>
 
 #define CFG_EXTRA_ENV_SETTINGS \
