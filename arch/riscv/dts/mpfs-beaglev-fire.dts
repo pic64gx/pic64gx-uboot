@@ -16,7 +16,7 @@
 
 	aliases {
 		serial0 = &uart0;
-		ethernet0 = &mac1;
+		ethernet0 = &mac0;
 	};
 
 	chosen {
@@ -188,12 +188,12 @@
 	};
 };
 
-&mac1 {
+&mac0 {
 	status = "okay";
 	phy-mode = "sgmii";
-	phy-handle = <&phy1>;
-	phy1: ethernet-phy@9 {
-		reg = <9>;
+	phy-handle = <&phy0>;
+	phy0: ethernet-phy@0 {
+		reg = <0>;
 	};
 };
 
