@@ -21,7 +21,7 @@ config TARGET_MICROCHIP_ICICLE
 	bool "Support Microchip PolarFire-SoC Icicle Board"
 
 config TARGET_MICROCHIP_DISCOKIT
-       bool "Support Microchip PolarFire-SoC Discovery Board"
+	bool "Support Microchip PolarFire-SoC Discovery Board"
 
 config TARGET_MICROCHIP_VIDEOKIT
 	bool "Support Microchip PolarFire-SoC Video Kit"
