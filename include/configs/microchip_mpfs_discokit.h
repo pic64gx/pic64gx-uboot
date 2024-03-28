@@ -9,119 +9,62 @@
 
 #include <linux/sizes.h>
 
-#define CFG_SYS_SDRAM_BASE	     0x80000000
+#define CFG_SYS_SDRAM_BASE       0x80000000
 
 /* Environment options */
 
 #if defined(CONFIG_CMD_DHCP)
-#define BOOT_TARGET_DEVICES_DHCP(func) func(DHCP, dhcp, na)
+#define BOOT_TARGET_DEVICES_DHCP(func)	func(DHCP, dhcp, na)
 #else
 #define BOOT_TARGET_DEVICES_DHCP(func)
 #endif
 
-#if defined(CONFIG_CMD_MTD)
-# define BOOT_TARGET_DEVICES_QSPI(func) func(QSPI, qspi, na)
-#else
-# define BOOT_TARGET_DEVICES_QSPI(func)
-#endif
-
 #if defined(CONFIG_CMD_MMC)
-#define BOOT_TARGET_DEVICES_MMC(func)  func(MMC, mmc, 0)
+#define BOOT_TARGET_DEVICES_MMC(func)	func(MMC, mmc, 0)
 #else
 #define BOOT_TARGET_DEVICES_MMC(func)
 #endif
 
-#if defined(CONFIG_MPFS_PRIORITISE_QSPI_BOOT)
-#define BOOTENV_DEV_QSPI(devtypeu, devtypel, instance) \
-	"bootcmd_qspi=echo Trying to boot from QSPI...; "\
-			"setenv scriptname boot.scr.uimg; " \
-			"if mtd list; then setenv mtd_present true; " \
-			"mtd read env ${scriptaddr} 0; " \
-			"source ${scriptaddr}; setenv mtd_present; " \
-			"fi\0 "
-
-#define BOOTENV_DEV_NAME_QSPI(devtypeu, devtypel, instance) \
-	"qspi "
+#if defined(CONFIG_CMD_UBIFS)
+#define BOOT_TARGET_DEVICE_UBIFS(func)	func(UBIFS, ubifs, 0, ubi, rootfs)
 #else
-#define BOOTENV_DEV_QSPI(devtypeu, devtypel, instance) \
-	""
-
-#define BOOTENV_DEV_NAME_QSPI(devtypeu, devtypel, instance) \
-	""
+#define BOOT_TARGET_DEVICE_UBIFS(func)
 #endif
 
+#if defined(CONFIG_MPFS_PRIORITISE_QSPI_BOOT)
 #define BOOT_TARGET_DEVICES(func) \
-	BOOT_TARGET_DEVICES_QSPI(func)\
+	BOOT_TARGET_DEVICE_UBIFS(func)	\
 	BOOT_TARGET_DEVICES_MMC(func)\
 	BOOT_TARGET_DEVICES_DHCP(func)
+#else
+#define BOOT_TARGET_DEVICES(func) \
+	BOOT_TARGET_DEVICES_MMC(func)\
+	BOOT_TARGET_DEVICES_DHCP(func)
+#endif
 
 #define BOOTENV_DESIGN_OVERLAYS \
 	"design_overlays=" \
 	"if test -n ${no_of_overlays}; then " \
-		 "setenv inc 1; " \
-		 "setenv idx 0; " \
-		 "fdt resize ${dtbo_size}; " \
-		 "while test $idx -ne ${no_of_overlays}; do " \
+		"setenv inc 1; " \
+		"setenv idx 0; " \
+		"fdt resize ${dtbo_size}; " \
+		"while test $idx -ne ${no_of_overlays}; do " \
 			"setenv dtbo_name dtbo_image${idx}; " \
 			"setenv fdt_cmd \"fdt apply $\"$dtbo_name; " \
 			"run fdt_cmd; " \
 			"setexpr idx $inc + $idx; " \
-		 "done; " \
+		"done; " \
 	"fi;\0 " \
 
-#if defined(CONFIG_FIT_SIGNATURE)
-#define BOOTENV\
-	"fdt_high=0xffffffffffffffff;\0 initrd_high=0xffffffffffffffff;\0" \
-	"bootcmd=if mtd list; then echo Trying to boot from QSPI...;" \
-	"ubi part rootfs; ubifsmount ubi0:rootfs; ubifsload 0x80000000 boot/fitImage;" \
-	"ubifsumount; ubi detach; " \
-	"run setbootargs;" \
-	"cp 0x80000000 ${scriptaddr} ${filesize};" \
-	"bootm start ${scriptaddr}#conf-microchip_mpfs-disco-kit.dtb#${dtbo_conf};" \
-	"bootm loados; bootm prep; " \
-	"fdt set /soc/ethernet@20110000 mac-address ${discokit_mac_addr0}; " \
-	"bootm go; " \
-	"reset; else " \
-	"setenv devnum 0; setenv mmcbootpart 1;"\
-	"if mmc rescan; then " \
-	"load mmc 0:${mmcbootpart} ${scriptaddr} fitImage; " \
-	"bootm start ${scriptaddr}; " \
-	"bootm loados ${scriptaddr}; " \
-	"bootm ramdisk; " \
-	"bootm prep; " \
-	"fdt set /soc/ethernet@20110000 mac-address ${discokit_mac_addr0}; " \
-	"run design_overlays;" \
-	"bootm go; " \
-	"reset; " \
-	"fi; fi\0 "
-
-#undef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND\
-	"run bootcmd;reset;" \
-
-#if defined(CONFIG_MTD_SPI_NAND)
-#define BOOTARGS\
-	"qspibootargs=uio_pdrv_genirq.of_id=generic-uio ubi.mtd=2 root=ubi0:rootfs rootfstype=ubifs rootwait rw\0 " \
-	"setbootargs=setenv bootargs ${qspibootargs} mtdparts=spi2.0:2m(payload),128k(env),119m(rootfs)\0 " \
-	"dtbo_conf=conf-mpfs_discokit_flash5_click.dtbo\0 "
-#else
-#define BOOTARGS\
-	"qspibootargs=uio_pdrv_genirq.of_id=generic-uio ubi.mtd=2 root=ubi0:rootfs rootfstype=ubifs rootwait rw\0 " \
-	"setbootargs=setenv bootargs ${qspibootargs} mtdparts=spi2.0:2m(payload),128k(env),28m(rootfs)\0 " \
-	"dtbo_conf=conf-mpfs_discokit_pmod_sf3.dtbo \0"
-#endif
-
-#define CFG_EXTRA_ENV_SETTINGS \
-	"bootm_size=0x10000000\0" \
-	"scriptaddr=0x8e000000\0" \
-	BOOTENV_DESIGN_OVERLAYS \
-	BOOTARGS \
-	BOOTENV
-#else
+#if !defined(CONFIG_FIT_SIGNATURE)
 #include <config_distro_bootcmd.h>
 
 #define CFG_EXTRA_ENV_SETTINGS \
 	"bootm_size=0x10000000\0" \
+	"kernel_addr_r=0x80200000\0" \
+	"fdt_addr_r=0x8a000000\0" \
+	"fdtoverlay_addr_r=0x8a080000\0" \
+	"ramdisk_addr_r=0x8aa00000\0" \
 	"scriptaddr=0x8e000000\0" \
 	BOOTENV_DESIGN_OVERLAYS \
 	BOOTENV \
