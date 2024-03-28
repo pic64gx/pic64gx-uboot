@@ -91,7 +91,7 @@
 			compatible = "shared-dma-pool";
 			reg = <0x0 0xc8000000 0x0 0x2000000>;
 			no-map;
-		 ;
+		};
 
 		fabricbuf2ddrncwcb: buffer@d8000000 {
 			compatible = "shared-dma-pool";
