@@ -11,7 +11,7 @@
 #define RTCCLK_FREQ		1000000
 
 / {
-	model = "Microchip PIC64GX-SoC Curiosity Kit";
+	model = "Microchip PIC64GX Curiosity Kit";
 	compatible = "microchip,pic64gx-curiosity-kit", "microchip,pic64gx";
 
 	aliases {
